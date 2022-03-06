@@ -4,6 +4,9 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import jwt
+import django as dj
+from django.template.backends import django
+
 from auth_backend.settings import SECRET_KEY, REFRESH_KEY
 from rest_framework.response import Response
 
@@ -28,7 +31,7 @@ class OTP(models.Model):
         if otp_actual.attempts == 0:
             otp_actual.delete()
             return False, "ATTEMPTS_EXCEEDED"
-        if otp_digits == otp_actual.digits and (otp_actual.expiry - datetime.datetime.utcnow()).total_seconds() > 0:
+        if otp_digits == otp_actual.digits and (otp_actual.expiry - datetime.datetime.now()).total_seconds() > 0:
             user.otp.delete()
             return True, "SUCCESS"
         return False, "INVALID_OTP"
@@ -78,7 +81,7 @@ class NonVerifiedUser(models.Model):
     last_name = models.CharField(max_length=100)
     email = models.EmailField(max_length=255, unique=True)
     is_active = models.BooleanField(default=True)
-    date_created = models.DateTimeField(default=datetime.datetime.utcnow())
+    date_created = models.DateTimeField(default=dj.utils.timezone.now)
     otp = models.ForeignKey(OTP, null=True, default=None, on_delete=models.SET_NULL)
 
     def toUser(self):
