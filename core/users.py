@@ -76,7 +76,7 @@ def handleLogout(request):
     loginId = request.data.get('loginId')
     userId = request.data.get('userId')
     if userId is not None:
-        emailId = User.objects.filter(user=userId).first().email
+        emailId = User.objects.filter(pk=userId).first().email
     CODE,response = ActiveLogins.LogoutUser(request = request, emailid=emailId,ids=loginId, checkPermissions=True)
     response.data = {'status': CODE}
     return response
